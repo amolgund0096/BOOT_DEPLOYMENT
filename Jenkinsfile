@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     tools {
-        jdk 'JDK 8'              // Matches the name from Jenkins tool config
-        maven 'Maven 3.9.10'     // Matches your Maven config
+        jdk 'Java 8'              // Matches the name from Jenkins tool config
+        maven 'Maven'     // Matches your Maven config
     }
 
     environment {
