@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Employee Dashboard with Sidebar & Navbar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+  <style>
+    body {
+      min-height: 100vh;
+      padding-top: 56px; /* navbar height */
+    }
+    .sidebar {
+      position: fixed;
+      top: 56px; /* below navbar */
+      bottom: 0;
+      left: 0;
+      width: 220px;
+      padding: 1rem;
+      background-color: #343a40;
+      color: white;
+      overflow-y: auto;
+    }
+    .sidebar .nav-link {
+      color: #adb5bd;
+    }
+    .sidebar .nav-link.active {
+      color: white;
+      background-color: #495057;
+      border-radius: 0.375rem;
+    }
+    .content {
+      margin-left: 220px;
+      padding: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">EmployeePanel</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbarContent" aria-controls="topNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse" id="topNavbarContent">
+        <form class="d-flex ms-auto" role="search" onsubmit="event.preventDefault(); alert('Search functionality not implemented');">
+          <input class="form-control me-2" type="search" placeholder="Search employees" aria-label="Search" />
+          <button class="btn btn-outline-light" type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Sidebar -->
+  <nav class="sidebar d-flex flex-column">
+    <h5 class="text-white mb-3">Menu</h5>
+    <ul class="nav nav-pills flex-column mb-auto" id="sidebarMenu">
+      <li class="nav-item">
+        <a href="#" class="nav-link active" data-section="dashboardSection" onclick="handleSidebarClick(event)">
+          🏠 Dashboard
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link" data-section="addEmployeeSection" onclick="handleSidebarClick(event)">
+          ➕ Add Employee
+        </a>
+      </li>
+      <li>
+        <a href="#" class="nav-link" data-section="employeeListSection" onclick="handleSidebarClick(event)">
+          📋 Employee List
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main content -->
+  <main class="content">
+    
+    <!-- Dashboard -->
+    <section id="dashboardSection">
+      <h2>Dashboard</h2>
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <div class="card text-bg-primary mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Total Employees</h5>
+              <p class="card-text fs-3">15</p> <!-- Replace with dynamic value later -->
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card text-bg-success mb-3">
+            <div class="card-body">
+              <h5 class="card-title">Active Roles</h5>
+              <p class="card-text fs-3">4</p> <!-- Replace with dynamic value later -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Add Employee -->
+    <section id="addEmployeeSection" style="display: none;">
+      <h2>Add Employee</h2>
+      <form id="employeeForm" class="mt-4">
+        <div class="row mb-3">
+          <div class="col">
+            <input type="text" class="form-control" placeholder="Name" id="empName" required />
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" placeholder="Role" id="empRole" required />
+          </div>
+        </div>
+        <div class="row mb-3">
+          <div class="col">
+            <input type="email" class="form-control" placeholder="Email" id="empEmail" required />
+          </div>
+          <div class="col">
+            <input type="text" class="form-control" placeholder="Contact" id="empContact" required />
+          </div>
+        </div>
+        <div class="mb-3">
+          <input type="text" class="form-control" placeholder="Education" id="empEducation" required />
+        </div>
+        
+        <button type="submit" class="btn btn-success">Save</button>
+      </form>
+    </section>
+
+    <!-- Employee List -->
+    <section id="employeeListSection" style="display: none;">
+      <h2>Employee List</h2>
+      <table id="employeeTable" class="table table-striped mt-3" style="width:100%">
+        <thead class="table-dark">
+          <tr>
+            <th>Sr No</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Email</th>
+            <th>Contact</th>
+            <th>Education</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+
+  <script>
+    let employeeTable;
+    let editingEmployeeId = null;
+
+    function handleSidebarClick(e) {
+      e.preventDefault();
+      // Remove active class from all links
+      document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
+      // Add active class to clicked
+      e.currentTarget.classList.add('active');
+
+      // Show/hide sections
+      const sectionToShow = e.currentTarget.getAttribute('data-section');
+      document.querySelectorAll('main > section').forEach(sec => {
+        sec.style.display = (sec.id === sectionToShow) ? 'block' : 'none';
+      });
+
+      // If employee list, load data
+      if(sectionToShow === 'employeeListSection') {
+        loadEmployees();
+      }
+    }
+
+    function loadEmployees() {
+      $.get("/api/employees", function (data) {
+        employeeTable.clear().rows.add(data).draw();
+      });
+    }
+
+    function deleteEmployee(id) {
+      if (!confirm("Delete this employee?")) return;
+      $.ajax({
+        url: `/api/employees/${id}`,
+        method: "DELETE",
+        success: loadEmployees,
+        error: () => alert("Delete failed!")
+      });
+    }
+
+    function editEmployee(id) {
+      $.get(`/api/employees/${id}`, function (data) {
+        editingEmployeeId = id;
+        $('#empName').val(data.name);
+        $('#empRole').val(data.role);
+        $('#empEmail').val(data.email);
+        $('#empContact').val(data.contact);
+        $('#empEducation').val(data.education);
+
+        // Show Add Employee section for editing
+        document.querySelectorAll('main > section').forEach(sec => sec.style.display = 'none');
+        document.getElementById('addEmployeeSection').style.display = 'block';
+
+        // Set sidebar active to Add Employee
+        document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
+        document.querySelector('.sidebar .nav-link[data-section="addEmployeeSection"]').classList.add('active');
+      });
+    }
+
+    $(document).ready(function () {
+      // Initialize DataTable
+      employeeTable = $('#employeeTable').DataTable({
+        columns: [
+          { data: null, render: (data, type, row, meta) => meta.row + 1 },
+          { data: 'name' },
+          { data: 'role' },
+          { data: 'email' },
+          { data: 'contact' },
+          { data: 'education' },
+          {
+            data: null,
+            render: row =>
+              `<button class="btn btn-sm btn-warning me-1" onclick="editEmployee(${row.id})">Edit</button>
+               <button class="btn btn-sm btn-danger" onclick="deleteEmployee(${row.id})">Delete</button>`
+          }
+        ]
+      });
+
+      // Handle form submit
+      $('#employeeForm').submit(function (e) {
+        e.preventDefault();
+        const emp = {
+          name: $('#empName').val().trim(),
+          role: $('#empRole').val().trim(),
+          email: $('#empEmail').val().trim(),
+          contact: $('#empContact').val().trim(),
+          education: $('#empEducation').val().trim()
+        };
+        const method = editingEmployeeId ? 'PUT' : 'POST';
+        const url = editingEmployeeId ? `/api/employees/${editingEmployeeId}` : '/api/employees';
+
+        $.ajax({
+          url,
+          method,
+          contentType: "application/json",
+          data: JSON.stringify(emp),
+          success: function () {
+            $('#employeeForm')[0].reset();
+            editingEmployeeId = null;
+            // Show employee list after save
+            document.querySelectorAll('main > section').forEach(sec => sec.style.display = 'none');
+            document.getElementById('employeeListSection').style.display = 'block';
+            // Set sidebar active
+            document.querySelectorAll('.sidebar .nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector('.sidebar .nav-link[data-section="employeeListSection"]').classList.add('active');
+            loadEmployees();
+          },
+          error: () => alert("Failed to save employee.")
+        });
+      });
+
+      // Show dashboard by default
+      handleSidebarClick({currentTarget: document.querySelector('.sidebar .nav-link.active')});
+    });
+  </script>
+</body>
+</html>
