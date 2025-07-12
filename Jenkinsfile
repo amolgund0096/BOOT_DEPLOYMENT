@@ -13,7 +13,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/yourusername/springboot-app.git'
+                git 'https://github.com/amolgund0096/BOOT_DEPLOYMENT.git'
             }
         }
 
